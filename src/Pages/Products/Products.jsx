@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from "axios";
 import MenuItem from '@mui/material/MenuItem';
+import img from '../../Images/iphone.jpg';
 
 //COMPONENTS
 import TextField from '@mui/material/TextField';
@@ -11,7 +12,7 @@ import Button from '@mui/material/Button';
 //3_ DELETE PRODUCT
 //4_ PRODUCT LIST
 
-const Profile = () => {
+const Products = () => {
 
     const products = [
         {
@@ -29,7 +30,7 @@ const Profile = () => {
     ];
 
     const [title, setTitle] = useState('');
-    const [image, setImage] = useState('');
+    const [image, setImage] = useState("");
     const [price, setPrice] = useState('');
     const [type, setType] = useState('');
     const [description, setDescription] = useState('');
@@ -40,7 +41,7 @@ const Profile = () => {
     const [spec5, setSpec5] = useState('');
 
     const handleChangeTitle = (event) => setTitle(event.target.value);
-    const handleChangeImage = (event) => setImage(event.target.value);
+    const handleChangeImage = (event) => setImage(event.target.files[0]);
     const handleChangePrice = (event) => setPrice(event.target.value);
     const handleChangeType = (event) => setType(event.target.value);
     const handleChangeDescription = (event) => setDescription(event.target.value);
@@ -52,12 +53,23 @@ const Profile = () => {
 
     const handleClick = () => {
         console.log(title, image, price, type, description, spec1, spec2, spec3, spec4, spec5);
+        const payload = new FormData();
+        payload.append("title",title);
+        payload.append("image",image);
+        payload.append("price",price);
+        payload.append("type",type);
+        payload.append("descrpition",description);
+        payload.append("spec1",spec1);
+        payload.append("spec2",spec2);
+        payload.append("spec3",spec3);
+        payload.append("spec4",spec4);
+        payload.append("spec5",spec5);
         const product = { title, image, price, type, description, spec1, spec2, spec3, spec4, spec5 };
-        axios.post(`http://localhost:8080/products/${type}`, product)
+        axios.post(`http://localhost:8080/products/${type}`, payload)
             .then(res => {
                 console.log(res.data);
                 setTitle('');
-                setImage('');
+                setImage("");
                 setPrice('');
                 setType('');
                 setDescription('');
@@ -70,6 +82,8 @@ const Profile = () => {
             .catch(e => console.log(e));
     }
 
+    const imgUrl = image && URL.createObjectURL(image);
+
     return (
         <>
             <div style={{
@@ -78,6 +92,17 @@ const Profile = () => {
             }}>
                 <div style={{ margin: 'auto', padding: '30px' }}>
                     <h1 >Add product</h1>
+
+                    <div style={{display:'flex',flexDirection:'column'}}>
+                        <img src={imgUrl} style={{ maxWidth: '194px' }}></img>
+
+                        <Button style={{ marginTop: '30px', maxWidth:'150px' }} 
+                        variant="contained" component="label">
+                            Upload Image
+                            <input onChange={handleChangeImage} hidden multiple type="file" />
+                        </Button>
+                    </div>
+
                     <TextField
                         id="outlined-multiline-flexible0"
                         label="Title"
@@ -96,14 +121,7 @@ const Profile = () => {
                         onChange={handleChangeDescription}
                         style={{ width: '100%', marginTop: '30px' }} />
 
-                    <TextField
-                        id="outlined-multiline-flexible2"
-                        label="Image"
-                        multiline
-                        maxRows={4}
-                        value={image}
-                        onChange={handleChangeImage}
-                        style={{ width: '100%', marginTop: '30px' }} />
+
 
                     <TextField
                         id="outlined-multiline-flexible3"
@@ -122,7 +140,7 @@ const Profile = () => {
                         value={type}
                         onChange={handleChangeType}
                         helperText="Please select product category"
-                        style={{ width: '100%', marginTop: '30px' }} 
+                        style={{ width: '100%', marginTop: '30px' }}
                     >
                         {products.map((option) => (
                             <MenuItem key={option.type} value={option.type}>
@@ -148,6 +166,7 @@ const Profile = () => {
                         value={spec2}
                         onChange={handleChangeSpec2}
                         style={{ width: '100%', marginTop: '30px' }} />
+
 
                     <TextField
                         id="outlined-multiline-flexible7"
@@ -176,7 +195,7 @@ const Profile = () => {
                         onChange={handleChangeSpec5}
                         style={{ width: '100%', marginTop: '30px' }} />
 
-                    <Button onClick={handleClick} style={{ marginTop: '10px' }}
+                    <Button onClick={handleClick} color='success' style={{ marginTop: '20px' }}
                         variant="contained">
                         Save
                     </Button>
@@ -187,4 +206,4 @@ const Profile = () => {
     )
 }
 
-export default Profile;
+export default Products;
