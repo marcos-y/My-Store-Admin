@@ -1,19 +1,38 @@
-import React, { useState } from 'react';
+import React,{useState,useEffect} from 'react';
 import axios from "axios";
-import MenuItem from '@mui/material/MenuItem';
-import AppBar from '../../Components/AppBar/AppBar';
 
 //COMPONENTS
 import TextField from '@mui/material/TextField';
+import Backdrop from '@mui/material/Backdrop';
+import Box from '@mui/material/Box';
+import Modal from '@mui/material/Modal';
+import Fade from '@mui/material/Fade';
 import Button from '@mui/material/Button';
+import CloseIcon from '@mui/icons-material/Close';
+import IconButton from '@mui/material/IconButton';
+import MenuItem from '@mui/material/MenuItem';
 
-//1_ ADD PRODUCT
-//2_ EDIT PRODUCT
-//3_ DELETE PRODUCT
-//4_ PRODUCT LIST
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+    height:'100%',
+    overflow:'scroll',
+    display:'block',
+    marginTop:'30px',
+    borderRadius:'10px',
+};
 
-const Products = () => {
+export default function ModalTransition(props) {
+    const [open, setOpen] = React.useState(false);
 
+    //Select component options
     const products = [
         {
             type: 'newitems'
@@ -29,16 +48,16 @@ const Products = () => {
         },
     ];
 
-    const [title, setTitle] = useState('');
-    const [image, setImage] = useState("");
-    const [price, setPrice] = useState('');
-    const [type, setType] = useState('');
-    const [description, setDescription] = useState('');
-    const [spec1, setSpec1] = useState('');
-    const [spec2, setSpec2] = useState('');
-    const [spec3, setSpec3] = useState('');
-    const [spec4, setSpec4] = useState('');
-    const [spec5, setSpec5] = useState('');
+    const [title, setTitle] = useState(props.title);
+    const [image, setImage] = useState(props.image);
+    const [price, setPrice] = useState(props.price);
+    const [type, setType] = useState(props.type);
+    const [description, setDescription] = useState(props.description);
+    const [spec1, setSpec1] = useState(props.spec1);
+    const [spec2, setSpec2] = useState(props.spec2);
+    const [spec3, setSpec3] = useState(props.spec3);
+    const [spec4, setSpec4] = useState(props.spec4);
+    const [spec5, setSpec5] = useState(props.spec5);
 
     const handleChangeTitle = (event) => setTitle(event.target.value);
     const handleChangeImage = (event) => setImage(event.target.files[0]);
@@ -51,6 +70,7 @@ const Products = () => {
     const handleChangeSpec4 = (event) => setSpec4(event.target.value);
     const handleChangeSpec5 = (event) => setSpec5(event.target.value);
 
+    //Edit product
     const handleClick = () => {
         console.log(title, image, price, type, description, spec1, spec2, spec3, spec4, spec5);
         const payload = new FormData();
@@ -65,38 +85,38 @@ const Products = () => {
         payload.append("spec4",spec4);
         payload.append("spec5",spec5);
         //const product = { title, image, price, type, description, spec1, spec2, spec3, spec4, spec5 };
-        axios.post(`http://localhost:8080/products/${type}`, payload)
+        axios.put(`http://localhost:8080/products/${type}/${props.id}`, payload)
             .then(res => {
                 console.log(res.data);
-                alert('Product added successfully!')
-                setTitle('');
-                setImage("");
-                setPrice('');
-                setType('');
-                setDescription('');
-                setSpec1('');
-                setSpec2('');
-                setSpec3('');
-                setSpec4('');
-                setSpec5('');
+                alert('Product edited successfully!')
             })
             .catch(e => console.log(e));
     }
 
-    const imgUrl = image && URL.createObjectURL(image);
-
+    //const imgUrl = image && URL.createObjectURL(image);
+ 
     return (
-        <>
-        <AppBar />
-            <div style={{
-                maxWidth: '600px', margin: 'auto', padding: '8px', marginTop: '6px',
-                backgroundColor: 'wheat', borderRadius: '10px', fontFamily: 'Roboto, sans-serif'
-            }}>
-                <div style={{ margin: 'auto', padding: '30px' }}>
-                    <h1 >Add product</h1>
+        <div>
+            <Modal
+                aria-labelledby="transition-modal-title"
+                aria-describedby="transition-modal-description"
+                open={props.open}
+                onClose={props.handleClose}
+                closeAfterTransition
+                BackdropComponent={Backdrop}
+                BackdropProps={{
+                    timeout: 500,
+                }}
+            >
+                <Fade in={props.open}>
+                    <Box sx={style}>
+                        <IconButton size="small" onClick={props.handleClose} style={{ float: 'right' }}>
+                            <CloseIcon size="small"/>
+                        </IconButton>
+                        <h1 >Edit product</h1>
 
                     <div style={{display:'flex',flexDirection:'column'}}>
-                        <img src={imgUrl} style={{ maxWidth: '194px' }}></img>
+                        <img src={props.image} style={{ maxWidth: '194px' }}></img>
 
                         <Button style={{ marginTop: '30px', maxWidth:'150px' }} 
                         variant="contained" component="label">
@@ -124,7 +144,6 @@ const Products = () => {
                         style={{ width: '100%', marginTop: '30px' }} />
 
 
-
                     <TextField
                         id="outlined-multiline-flexible3"
                         label="Price"
@@ -138,7 +157,7 @@ const Products = () => {
                     <TextField
                         id="outlined-select-currency"
                         select
-                        label="Select category"
+                        label="Type"
                         value={type}
                         onChange={handleChangeType}
                         helperText="Please select product category"
@@ -197,15 +216,14 @@ const Products = () => {
                         onChange={handleChangeSpec5}
                         style={{ width: '100%', marginTop: '30px' }} />
 
-                    <Button onClick={handleClick} color='success' style={{ marginTop: '20px' }}
+                    <Button onClick={handleClick}  color='success' style={{ marginTop: '20px' }}
                         variant="contained">
                         Save
                     </Button>
-                </div>
-            </div>
-            <br></br>
-        </>
-    )
+    
+                    </Box>
+                </Fade>
+            </Modal>
+        </div>
+    );
 }
-
-export default Products;
